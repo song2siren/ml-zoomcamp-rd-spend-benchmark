@@ -4,6 +4,10 @@ Midterm project for the DataTalksClub [Machine Learning Zoomcamp 2026](https://g
 
 > **Status:** work in progress. Sections marked _TODO_ are filled in as the project develops.
 
+## Evaluation
+
+The self-assessment against each of the course's evaluation criteria is in [docs/project-evaluation.md](docs/project-evaluation.md).
+
 ## Problem description
 
 Companies in the UK can claim tax relief on qualifying research and development (R&D) spend. Advisers who prepare and review these claims, and HMRC when it checks them, often ask a simple sense-check question: **is this company's R&D figure in line with what we'd expect for a business of its size and type?**
