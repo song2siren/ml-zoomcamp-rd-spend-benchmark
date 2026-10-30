@@ -13,12 +13,16 @@ Key: ✅ criterion fully met · 🟨 partly met · ⬜ not started
   - [ ] 0 points: No EDA
   - [ ] 1 point: Basic EDA (looking at min-max values, checking for missing values)
   - [ ] 2 points: Extensive EDA (ranges of values, missing values, analysis of target variable, feature importance analysis)
+    - For images: analysing the content of the images
+    - For texts: frequent words, word clouds, etc
 
 - ⬜ Model training
   - [ ] 0 points: No model training
   - [ ] 1 point: Trained only one model, no parameter tuning
   - [ ] 2 points: Trained multiple models (linear and tree-based)
+    - For neural networks: tried multiple variations - with dropout or without, with extra inner layers or without
   - [ ] 3 points: Trained multiple models and tuned their parameters
+    - For neural networks: same as previous, but also with tuning: adjusting learning rate, dropout rate, size of the inner layer, etc.
 
 - ⬜ Exporting notebook to script
   - [ ] 0 points: No script for training a model
