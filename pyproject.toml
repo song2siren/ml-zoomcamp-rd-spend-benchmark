@@ -1,0 +1,21 @@
+[project]
+name = "rd-spend-benchmark"
+version = "0.1.0"
+description = "ML Zoomcamp 2026 midterm: predicting expected corporate R&D spend"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "fastapi",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "uvicorn",
+    "xgboost",
+]
+
+[dependency-groups]
+dev = [
+    "jupyter",
+    "matplotlib",
+    "openpyxl",
+    "seaborn",
+]
