@@ -78,11 +78,24 @@ pip install uv          # if uv isn't installed already
 uv sync                 # creates .venv and installs the exact versions in uv.lock
 ```
 
-Run any command inside the environment with `uv run`, for example:
+Commands need to run inside the virtual environment (`.venv`). There are two equivalent ways to do this.
+
+**Option 1:** prefix each command with `uv run`:
 
 ```bash
-uv run jupyter notebook notebook.ipynb
+uv run jupyter notebook
 ```
+
+**Option 2:** activate the environment once per terminal session, then run commands as normal:
+
+```bash
+source .venv/bin/activate
+jupyter notebook
+```
+
+When the environment is active, the terminal prompt starts with `(rd-spend-benchmark)`. Run `deactivate` to leave it.
+
+If you're using GitHub Codespaces, VS Code forwards Jupyter's port 8888 automatically: open it from the **Ports** panel.
 
 ### Train the model
 
