@@ -9,12 +9,10 @@ Key: ✅ criterion fully met · 🟨 partly met · ⬜ not started
   - [ ] 1 point: Problem is described in README briefly without much details
   - [ ] 2 points: Problem is described in README with enough context, so it's clear what the problem is and how the solution will be used
 
-- ⬜ EDA
+- ✅ EDA
   - [ ] 0 points: No EDA
   - [ ] 1 point: Basic EDA (looking at min-max values, checking for missing values)
-  - [ ] 2 points: Extensive EDA (ranges of values, missing values, analysis of target variable, feature importance analysis)
-    - For images: analysing the content of the images
-    - For texts: frequent words, word clouds, etc
+  - [x] 2 points: Extensive EDA (ranges of values, missing values, analysis of target variable, feature importance analysis)
 
 - ⬜ Model training
   - [ ] 0 points: No model training
