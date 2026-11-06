@@ -16,12 +16,12 @@ Key: ✅ criterion fully met · 🟨 partly met · ⬜ not started
     - For images: analysing the content of the images
     - For texts: frequent words, word clouds, etc
 
-- 🟨 Model training
+- ✅ Model training
   - [ ] 0 points: No model training
-  - [x] 1 point: Trained only one model, no parameter tuning
+  - [ ] 1 point: Trained only one model, no parameter tuning
   - [ ] 2 points: Trained multiple models (linear and tree-based)
     - For neural networks: tried multiple variations - with dropout or without, with extra inner layers or without
-  - [ ] 3 points: Trained multiple models and tuned their parameters
+  - [x] 3 points: Trained multiple models and tuned their parameters
     - For neural networks: same as previous, but also with tuning: adjusting learning rate, dropout rate, size of the inner layer, etc.
 
 - ✅ Exporting notebook to script
@@ -51,4 +51,4 @@ Key: ✅ criterion fully met · 🟨 partly met · ⬜ not started
   - [ ] 1 point: Docs describe clearly (with code) how to deploy the service to cloud or kubernetes cluster (local or remote)
   - [ ] 2 points: There's code for deployment to cloud or kubernetes cluster (local or remote). There's a URL for testing - or video/screenshot of testing it
 
-**Self-assessed total: 12 / 16**
+**Self-assessed total: 14 / 16**
