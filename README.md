@@ -99,11 +99,69 @@ If you're using GitHub Codespaces, VS Code forwards Jupyter's port 8888 automati
 
 ### Train the model
 
-_TODO: `train.py`._
+```bash
+uv run python train.py
+```
+
+This cleans the data, splits it by company, reports the validation and test scores, and saves the trained model to `model.bin`. The cleaning and feature engineering code is shared with the web service in `features.py`. A trained `model.bin` is already committed, so this step is optional.
 
 ### Run the web service
 
-_TODO: `predict.py`, Docker build and run, example request._
+The model is served with [FastAPI](https://fastapi.tiangolo.com/) on port 9696.
+
+**With Docker (recommended):**
+
+```bash
+docker build -t rd-spend-benchmark .
+docker run -it --rm -p 9696:9696 rd-spend-benchmark
+```
+
+**Without Docker:**
+
+```bash
+uv run uvicorn predict:app --host 0.0.0.0 --port 9696
+```
+
+### Use the web service
+
+With the service running, send an example request from a second terminal:
+
+```bash
+uv run python test_predict.py
+```
+
+or with `curl`:
+
+```bash
+curl -X POST http://localhost:9696/predict \
+  -H "Content-Type: application/json" \
+  -d '{"net_sales": 250, "employees": 1200, "capex": 15, "operating_profit": 20,
+       "year": 2024, "year_incorporated": 1998,
+       "sector": "Software & Computer Services", "country": "UK",
+       "reported_rnd": 30}'
+```
+
+Example response:
+
+```json
+{
+  "expected_rnd": 43.63,
+  "typical_range": [17.18, 110.8],
+  "units": "€ million",
+  "reported_rnd": 30.0,
+  "reported_vs_expected": 0.69,
+  "assessment": "typical"
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `expected_rnd` | The model's estimate of R&D spend for a company with this profile (€m) |
+| `typical_range` | The range within which predictions are typically accurate (expected ÷ and × the model's typical error factor from the test set) |
+| `reported_vs_expected` | Reported R&D divided by expected R&D (only if `reported_rnd` is given) |
+| `assessment` | `typical` if the reported figure is within the typical range, otherwise `unusually high` or `unusually low` |
+
+All money values are in € million. Only `year`, `sector` and `country` are required; missing figures are filled with typical values from the training data. Valid sectors and countries are listed at `GET /options`, and `GET /health` confirms the service is running. FastAPI also provides interactive documentation at http://localhost:9696/docs.
 
 ## Cloud deployment
 
