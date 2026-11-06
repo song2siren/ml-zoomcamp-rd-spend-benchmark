@@ -145,11 +145,11 @@ Example response:
 
 ```json
 {
-  "expected_rnd": 43.63,
-  "typical_range": [17.18, 110.8],
+  "expected_rnd": 36.94,
+  "typical_range": [16.93, 80.62],
   "units": "€ million",
   "reported_rnd": 30.0,
-  "reported_vs_expected": 0.69,
+  "reported_vs_expected": 0.81,
   "assessment": "typical"
 }
 ```
@@ -161,7 +161,7 @@ Example response:
 | `reported_vs_expected` | Reported R&D divided by expected R&D (only if `reported_rnd` is given) |
 | `assessment` | `typical` if the reported figure is within the typical range, otherwise `unusually high` or `unusually low` |
 
-All money values are in € million. Only `year`, `sector` and `country` are required; missing figures are filled with typical values from the training data. Valid sectors and countries are listed at `GET /options`, and `GET /health` confirms the service is running. FastAPI also provides interactive documentation at http://localhost:9696/docs.
+All money values are in € million. Only `year`, `sector` and `country` are required; missing figures are filled with typical values from the training data. Predictions are most reliable when all the financial figures are supplied, because the typical values may not suit a company that is much larger or smaller than average. Valid sectors and countries are listed at `GET /options`, and `GET /health` confirms the service is running. FastAPI also provides interactive documentation at http://localhost:9696/docs.
 
 ## Cloud deployment
 

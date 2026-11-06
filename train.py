@@ -12,20 +12,29 @@ import pickle
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction import DictVectorizer
-from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
+from xgboost import XGBRegressor
 
 from features import NUMERICAL, clean_data, fill_missing, prepare_features
 
 DATA_PATH = 'data/scoreboard_panel.csv'
 MODEL_PATH = 'model.bin'
-MODEL_NAME = 'Ridge regression (alpha=1)'
+MODEL_NAME = 'XGBoost (eta=0.1, max_depth=6, min_child_weight=1, 240 rounds)'
 SEED = 1
 
 
 def build_model():
-    return make_pipeline(DictVectorizer(sparse=False), Ridge(alpha=1.0))
+    # Best settings from section 5.4 of the notebook
+    xgb_model = XGBRegressor(
+        n_estimators=240,
+        learning_rate=0.1,
+        max_depth=6,
+        min_child_weight=1,
+        objective='reg:squarederror',
+        random_state=SEED,
+    )
+    return make_pipeline(DictVectorizer(sparse=False), xgb_model)
 
 
 def rmse(y_true, y_pred):
