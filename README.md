@@ -225,6 +225,8 @@ The service is deployed to [Fly.io](https://fly.io), following the approach in t
 
 ![Testing the deployed service through its /docs page](images/fly-deployment.png)
 
+**Web app:** a simple web form that uses the deployed service is available at https://rd-spend-benchmark.streamlit.app, built with Streamlit (code in a [separate repository](https://github.com/song2siren/ml-zoomcamp-rd-spend-benchmark-ui)).
+
 ### Deploying it yourself
 
 1. Install the Fly.io command-line tool and create an account (new accounts get a short free trial):
