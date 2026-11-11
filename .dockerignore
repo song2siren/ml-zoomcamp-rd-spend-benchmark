@@ -1,0 +1,10 @@
+# Files the web service doesn't need: keeps the Docker build (and the upload to Fly.io) small
+.venv/
+.git/
+__pycache__/
+.ipynb_checkpoints/
+data/
+docs/
+images/
+notebook.ipynb
+*.zip

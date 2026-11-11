@@ -1,12 +1,15 @@
 """Send an example request to the running web service.
 
-Usage (with the service running on port 9696):
-    uv run python test_predict.py
+Usage:
+    uv run python test_predict.py                              # local service on port 9696
+    uv run python test_predict.py https://<your-app>.fly.dev   # deployed service
 """
 import json
+import sys
 import urllib.request
 
-URL = 'http://localhost:9696/predict'
+BASE_URL = sys.argv[1].rstrip('/') if len(sys.argv) > 1 else 'http://localhost:9696'
+URL = BASE_URL + '/predict'
 
 company = {
     'net_sales': 250.0,

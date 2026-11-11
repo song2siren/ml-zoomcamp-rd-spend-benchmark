@@ -214,7 +214,54 @@ All money values are in € million. Only `year`, `sector` and `country` are req
 
 ## Cloud deployment
 
-_TODO (optional, bonus points)._
+The service is deployed to [Fly.io](https://fly.io), following the approach in the course's [Module 5 workshop](https://github.com/DataTalksClub/machine-learning-zoomcamp/blob/main/05-deployment/workshop/README.md). Fly.io builds the same Docker image from the `Dockerfile` and runs it in the cloud. The settings are in [`fly.toml`](fly.toml):
+
+- region: London (`lhr`)
+- one small machine (shared CPU, 512 MB memory)
+- the machine stops automatically when idle and restarts on the next request, so the first request after a quiet period can take a few seconds
+- Fly.io checks `/health` to confirm the service is running
+
+**Deployed URL:** _ADD URL_ (interactive documentation at `/docs`)
+
+![Testing the deployed service through its /docs page](images/fly-deployment.png)
+
+### Deploying it yourself
+
+1. Install the Fly.io command-line tool and create an account (new accounts get a short free trial):
+
+   ```bash
+   curl -L https://fly.io/install.sh | sh
+   export PATH="$HOME/.fly/bin:$PATH"
+   fly auth signup        # or: fly auth login
+   ```
+
+2. Create the app from the settings in `fly.toml`, with a generated name and a single machine:
+
+   ```bash
+   fly launch --copy-config --generate-name --ha=false --no-deploy
+   ```
+
+3. Build and deploy:
+
+   ```bash
+   fly deploy --ha=false
+   ```
+
+   The output ends with the app's address, for example `https://<app-name>.fly.dev`.
+
+4. Test it:
+
+   ```bash
+   uv run python test_predict.py https://<app-name>.fly.dev
+   ```
+
+   or open `https://<app-name>.fly.dev/docs` in a browser.
+
+5. When you no longer need it, delete the app so nothing further is charged:
+
+   ```bash
+   fly apps destroy <app-name>
+   ```
 
 ## Project structure
 
@@ -230,6 +277,8 @@ _TODO (optional, bonus points)._
 ├── predict.py                  # FastAPI web service
 ├── test_predict.py             # example request to the service
 ├── Dockerfile                  # container for the web service
+├── .dockerignore               # files left out of the container
+├── fly.toml                    # Fly.io cloud deployment settings
 ├── pyproject.toml, uv.lock     # dependencies
 └── .python-version             # Python version used by uv
 ```
