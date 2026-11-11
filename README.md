@@ -2,7 +2,9 @@
 
 Midterm project for the DataTalksClub [Machine Learning Zoomcamp 2026](https://github.com/DataTalksClub/machine-learning-zoomcamp).
 
-> **Status:** work in progress. Sections marked _TODO_ are filled in as the project develops.
+A machine learning model and web service that estimates the R&D spend you'd expect from a company, given its size, sector, profitability and location, and flags reported R&D figures that look unusually high or low.
+
+**Results at a glance:** XGBoost, trained on about 78,000 records from the EU Industrial R&D Investment Scoreboard, predicts R&D spend for companies it has never seen to within a typical factor of 2.2 (test RMSE 0.780 on log R&D). It is served with FastAPI and packaged with Docker.
 
 ## Evaluation
 
@@ -14,16 +16,16 @@ Companies in the UK can claim tax relief on qualifying research and development 
 
 Today that judgement is mostly based on experience. This project builds a model that answers it with data. Given a company's:
 
-- size (net sales, employees, capital expenditure, market value)
+- size (net sales, employees, capital expenditure)
 - profitability (operating profit)
 - sector and location
 - age
 
 the model predicts the R&D spend you'd **expect** for that profile. Comparing a company's actual R&D with the prediction shows whether it is typical, unusually high or unusually low, which flags figures worth a closer look.
 
-The model is trained on the world's largest corporate R&D investors, so it is a proof of concept rather than a tool for small-company claims. The same approach could be applied to other company-level data.
+**How it would be used:** an adviser reviewing a claim enters the company's figures from its accounts, together with the R&D spend being claimed. The service returns the expected R&D for a company of that profile, a typical range, and an assessment. A figure well outside the range doesn't mean a claim is wrong, but it is a prompt to check the claim more closely before it is submitted, and a way to spot claims likely to attract questions. Every input is a figure found in a company's annual accounts, so the tool works for private as well as listed companies.
 
-_TODO: add a sentence or two on how you'd use this in practice._
+The model is trained on the world's largest corporate R&D investors, so it is a proof of concept rather than a tool for small-company claims. The same approach could be applied to other company-level data (see [Limitations and next steps](#limitations-and-next-steps)).
 
 ## Dataset
 
@@ -57,11 +59,58 @@ If the download fails, download the "2025 Scoreboard Panel" file manually from t
 
 ## Exploratory data analysis
 
-_TODO: key findings from [`notebook.ipynb`](notebook.ipynb)._
+The full analysis is in sections 2 and 3 of [`notebook.ipynb`](notebook.ipynb). Key findings:
+
+**Data quality**
+- 18.6% of rows have no R&D figure and 228 have zero R&D; these can't be used and were dropped.
+- Some values are impossible and were traced to their cause. The largest net sales figure (€50 trillion, Ecopetrol, 2015) is in Colombian pesos but labelled as US dollars in the source data, so it was converted at the wrong exchange rate.
+- A sense-check of R&D spend per employee found 68 rows with contradictory figures (over €5m per employee, against a typical €11,000), such as a small UK tidal energy company reporting €3.3bn of R&D with 33 staff. These were dropped.
+- Negative sales and capex, and zero employee counts, were treated as missing values. After cleaning, 78,501 rows from 6,295 companies remain.
+
+**The target**
+
+![Distribution of R&D spend on a normal and a log scale](images/target_distribution.png)
+
+R&D spend is extremely skewed: the median company spends €37m a year, but a few spend tens of billions (Amazon: €65bn in 2024). After a log transform the distribution is close to bell-shaped, so the model predicts log R&D. Net sales, employees and capex are skewed in the same way and are also log-transformed.
+
+**Sector matters relative to size**
+
+![Median R&D intensity by sector](images/rd_intensity_by_sector.png)
+
+R&D intensity (R&D as a percentage of sales) varies about 30-fold between sectors, from 0.7% in Energy to 20% in Health. In 6.6% of rows a company spends more on R&D than its total sales, mostly biotech companies investing before they have products on the market; a quarter of all rows are loss-making, rising to 55% in Health.
+
+**Feature importance**
+- Company size is the strongest predictor of R&D (correlation with log R&D: 0.59 to 0.73 for sales, employees, capex and market value). The size features overlap heavily (sales and employees: 0.92).
+- On its own, sector says little about the *amount* of R&D (mutual information 0.05), but it is the strongest categorical predictor of R&D *intensity* (0.43 for the 39 detailed sectors). Sector tells you how much a company spends *for its size*, so the model needs size and sector together.
 
 ## Model training
 
-_TODO: validation approach, models tried, tuning and results table._
+The full work is in sections 4 to 6 of [`notebook.ipynb`](notebook.ipynb), and the final model is trained by [`train.py`](train.py).
+
+**Features:** log net sales, log employees, log capex, profit margin, company age, year, detailed sector (39 categories) and country. Left out deliberately:
+- **market capitalisation:** a strong predictor, but only listed companies have one, and most companies claiming R&D tax relief are private
+- **company name:** the model would memorise companies rather than learn general patterns
+- **R&D intensity and the Scoreboard rankings:** calculated from R&D spend, so they would leak the answer
+
+**Validation approach:** each company appears in the data for 12 years on average, so a random split would put different years of the same company in both the training and test sets and give an over-optimistic score. The data is therefore split **by company**: 60% of companies for training, 20% for validation and 20% for testing. The test score measures performance on companies the model has never seen, which matches the intended use.
+
+**Models:** four models were trained and tuned on the training set and compared on the validation set. The metric is RMSE on log R&D; `exp(RMSE)` gives the typical factor by which predictions are off.
+
+| Model | Parameters tuned | Best settings | Validation RMSE | Typical error |
+|---|---|---|---|---|
+| Baseline (always predict the average) | – | – | 1.592 | × 4.9 |
+| Ridge regression | `alpha` | alpha 1 | 0.917 | × 2.50 |
+| Decision tree | `max_depth`, `min_samples_leaf` | depth 12, leaf 50 | 0.939 | × 2.56 |
+| Random forest | `n_estimators`, `max_depth`, `min_samples_leaf` | 100 trees, no depth limit, leaf 5 | 0.843 | × 2.32 |
+| **XGBoost** | `eta`, number of rounds, `max_depth`, `min_child_weight` | eta 0.1, 240 rounds, depth 6, min_child_weight 1 | **0.795** | **× 2.21** |
+
+The tree ensembles clearly beat the linear model, consistent with the EDA finding that sector matters in combination with company size. XGBoost's most important features are net sales, followed by country (US) and a range of sectors.
+
+**Final model:** XGBoost, retrained on the training and validation companies together and evaluated once on the test set:
+
+- **Test RMSE: 0.780** (typical error × 2.18), in line with validation, so the model generalises to new companies.
+- 74% of test predictions are within the typical range.
+- Example: GSK (2024) reported R&D of €6,866m against a predicted €4,336m, higher than expected for a pharmaceutical company of its size but within the typical range.
 
 ## Running the project
 
@@ -166,6 +215,48 @@ All money values are in € million. Only `year`, `sector` and `country` are req
 ## Cloud deployment
 
 _TODO (optional, bonus points)._
+
+## Project structure
+
+```
+├── data/scoreboard_panel.csv   # trimmed dataset (committed)
+├── docs/project-evaluation.md  # self-assessment against the course criteria
+├── images/                     # charts used in this README
+├── notebook.ipynb              # data cleaning, EDA, model selection and tuning
+├── prepare_data.py             # rebuilds the CSV from the original EU spreadsheet
+├── features.py                 # cleaning and feature engineering, shared by training and the service
+├── train.py                    # trains the final model and saves model.bin
+├── model.bin                   # trained model
+├── predict.py                  # FastAPI web service
+├── test_predict.py             # example request to the service
+├── Dockerfile                  # container for the web service
+├── pyproject.toml, uv.lock     # dependencies
+└── .python-version             # Python version used by uv
+```
+
+```mermaid
+flowchart LR
+    A["EU Scoreboard data"] --> B["features.py<br/>cleaning and features"]
+    B --> C["train.py<br/>XGBoost"]
+    C --> D["model.bin"]
+    D --> E["predict.py<br/>FastAPI in Docker"]
+    F["Company figures"] --> E
+    E --> G["Expected R&D,<br/>typical range,<br/>assessment"]
+```
+
+## Limitations and next steps
+
+**Limitations**
+- **Large companies only.** The Scoreboard covers the world's top R&D investors. Small and medium-sized companies, which make most R&D tax relief claims, may follow different patterns, so the model shouldn't be used to judge an individual SME's claim.
+- **Wide margin of error.** Predictions are typically off by a factor of about 2. The service shows a typical range rather than a single figure for this reason, and an "unusual" assessment is a prompt to look more closely, not evidence of a problem.
+- **Data quality.** Some errors in the source data were found and removed, but others may remain.
+- **Different definitions.** The Scoreboard records R&D as reported in company accounts, which is not the same as qualifying expenditure under the UK's R&D tax relief rules.
+- **No access control.** The service is open to anyone who can reach it. A real internal tool would need authentication and should not receive confidential client data unless it runs within the firm's own systems.
+
+**Next steps**
+- Retrain on data closer to the intended use, such as anonymised historic claim data, used internally with appropriate data governance.
+- Add a simple web form so non-technical users can try the service, with clear guidance on how to interpret the results.
+- Apply the same approach to related problems, such as estimating how likely and how soon a patent application is to be granted (relevant to Patent Box), or the chances of success of a grant application.
 
 ## Acknowledgements
 
