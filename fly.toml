@@ -1,6 +1,9 @@
-# Fly.io configuration for the R&D spend benchmark web service.
-# The app name is added by `fly launch` when the app is created.
+# fly.toml app configuration file generated for serene-meadow-5589 on 2026-11-11T14:00:49Z
+#
+# See https://docs.fly.io/reference/configuration for information about how to use this file.
+#
 
+app = 'serene-meadow-5589'
 primary_region = 'lhr'
 
 [build]
@@ -14,13 +17,14 @@ primary_region = 'lhr'
   min_machines_running = 0
 
   [[http_service.checks]]
-    grace_period = '20s'
     interval = '30s'
+    timeout = '5s'
+    grace_period = '20s'
     method = 'GET'
     path = '/health'
-    timeout = '5s'
 
 [[vm]]
   memory = '512mb'
   cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 512

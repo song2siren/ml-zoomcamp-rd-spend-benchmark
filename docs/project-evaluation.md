@@ -46,9 +46,9 @@ Key: ✅ criterion fully met · 🟨 partly met · ⬜ not started
   - [ ] 1 point: Dockerfile is provided or a tool that creates a docker image is used (e.g. BentoML)
   - [x] 2 points: The application is containerized and the README describes how to build a container and how to run it
 
-- ⬜ Cloud deployment (bonus)
+- ✅ Cloud deployment (bonus)
   - [ ] 0 points: No deployment to the cloud
   - [ ] 1 point: Docs describe clearly (with code) how to deploy the service to cloud or kubernetes cluster (local or remote)
-  - [ ] 2 points: There's code for deployment to cloud or kubernetes cluster (local or remote). There's a URL for testing - or video/screenshot of testing it
+  - [x] 2 points: There's code for deployment to cloud or kubernetes cluster (local or remote). There's a URL for testing - or video/screenshot of testing it
 
-**Self-assessed total: 14 / 16**
+**Self-assessed total: 16 / 16**

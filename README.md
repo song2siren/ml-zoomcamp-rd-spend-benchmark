@@ -221,7 +221,7 @@ The service is deployed to [Fly.io](https://fly.io), following the approach in t
 - the machine stops automatically when idle and restarts on the next request, so the first request after a quiet period can take a few seconds
 - Fly.io checks `/health` to confirm the service is running
 
-**Deployed URL:** _ADD URL_ (interactive documentation at `/docs`)
+**Deployed URL:** https://serene-meadow-5589.fly.dev (interactive documentation at [`/docs`](https://serene-meadow-5589.fly.dev/docs))
 
 ![Testing the deployed service through its /docs page](images/fly-deployment.png)
 
