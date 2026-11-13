@@ -306,7 +306,7 @@ flowchart LR
 
 **Next steps**
 - Retrain on data closer to the intended use, such as anonymised historic claim data, used internally with appropriate data governance.
-- Add a simple web form so non-technical users can try the service, with clear guidance on how to interpret the results.
+- Develop the [web app](https://rd-spend-benchmark.streamlit.app) further for non-technical users: fuller guidance on interpreting the results and, for any internal use, authentication and hosting within the firm's own systems.
 - Apply the same approach to related problems, such as estimating how likely and how soon a patent application is to be granted (relevant to Patent Box), or the chances of success of a grant application.
 
 ## Acknowledgements
